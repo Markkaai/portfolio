@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 const NAV_LINKS = ["About", "Experience", "Projects", "Skills", "Contact"];
 
@@ -29,6 +29,14 @@ const PROJECTS = [
     tags: ["React", "Firebase", "MongoDB"],
     link: "https://github.com/markkaai",
   },
+
+ {
+  title: "Soccer AI — EPL Predictive Model",
+  desc: "A machine learning model that analyses historic and live EPL data to predict upcoming match outcomes with statistical confidence.",
+  tags: ["Python", "React"],
+  link: "https://github.com/markkaai",
+},
+
 ];
 
 const EXPERIENCES = [
@@ -56,7 +64,6 @@ const EXPERIENCES = [
 ];
 
 function useTypewriter(phrases, speed = 80, pause = 1800) {
-  const [display, setDisplay] = useState("");
   const [phraseIdx, setPhraseIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
@@ -70,7 +77,7 @@ function useTypewriter(phrases, speed = 80, pause = 1800) {
       timeout = setTimeout(() => setDeleting(true), pause);
     } else if (deleting && charIdx > 0) {
       timeout = setTimeout(() => setCharIdx((c) => c - 1), speed / 2);
-    } else if (deleting && charIdx === 0) {
+    } else {
       setDeleting(false);
       setPhraseIdx((i) => (i + 1) % phrases.length);
     }
@@ -86,9 +93,7 @@ function Cursor() {
     const t = setInterval(() => setVis((v) => !v), 530);
     return () => clearInterval(t);
   }, []);
-  return (
-    <span style={{ opacity: vis ? 1 : 0, color: "#3B82F6" }}>|</span>
-  );
+  return <span style={{ opacity: vis ? 1 : 0, color: "#60a5fa" }}>|</span>;
 }
 
 function NavBar({ active, setActive }) {
@@ -108,57 +113,71 @@ function NavBar({ active, setActive }) {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50 shadow-lg" : "bg-transparent"}`}>
-      <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+      background: scrolled ? "rgba(15,23,42,0.97)" : "transparent",
+      backdropFilter: scrolled ? "blur(12px)" : "none",
+      borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "none",
+      transition: "all 0.3s ease",
+    }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div
-          className="font-mono font-bold text-lg text-white cursor-pointer"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 18, color: "#fff", cursor: "pointer", letterSpacing: 1 }}
         >
-          <span className="text-blue-400">{"<"}</span>MK<span className="text-blue-400">{"/>"}</span>
+          <span style={{ color: "#60a5fa" }}>{"<"}</span>MK<span style={{ color: "#60a5fa" }}>{"/>"}</span>
         </div>
 
-        <div className="hidden md:flex items-center gap-8">
+        {/* Desktop nav */}
+        <div style={{ display: "flex", gap: 36 }} className="desk-nav">
           {NAV_LINKS.map((link) => (
             <button
               key={link}
               onClick={() => handleNav(link)}
-              className={`border-none bg-none cursor-pointer text-xs font-medium tracking-widest uppercase transition-colors duration-200 pb-0.5 ${
-                active === link
-                  ? "text-blue-400 border-b border-blue-400"
-                  : "text-slate-400 hover:text-white"
-              }`}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontFamily: "Inter, sans-serif", fontSize: 11, fontWeight: 500,
+                letterSpacing: "0.15em", textTransform: "uppercase",
+                color: active === link ? "#60a5fa" : "#94a3b8",
+                borderBottom: active === link ? "1px solid #60a5fa" : "1px solid transparent",
+                paddingBottom: 2, transition: "color 0.2s",
+              }}
             >
               {link}
             </button>
           ))}
         </div>
 
+        {/* Mobile hamburger */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden bg-none border-none cursor-pointer p-2 flex flex-col gap-1.5"
+          className="mob-menu-btn"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 8, display: "none", flexDirection: "column", gap: 5 }}
         >
           {[0, 1, 2].map((i) => (
-            <span
-              key={i}
-              className={`block w-5 h-[1.5px] bg-slate-300 transition-all duration-200 ${
-                menuOpen && i === 0 ? "rotate-45 translate-y-[7px]"
-                : menuOpen && i === 1 ? "opacity-0"
-                : menuOpen && i === 2 ? "-rotate-45 -translate-y-[7px]" : ""
-              }`}
-            />
+            <span key={i} style={{
+              display: "block", width: 22, height: 2, background: "#cbd5e1", borderRadius: 2,
+              transition: "all 0.25s",
+              transform: menuOpen && i === 0 ? "rotate(45deg) translateY(7px)" : menuOpen && i === 2 ? "rotate(-45deg) translateY(-7px)" : "none",
+              opacity: menuOpen && i === 1 ? 0 : 1,
+            }} />
           ))}
         </button>
       </div>
 
       {menuOpen && (
-        <div className="md:hidden bg-slate-900/98 border-t border-slate-700/50 px-6 py-4 flex flex-col gap-1">
+        <div style={{ background: "rgba(15,23,42,0.99)", borderTop: "1px solid rgba(255,255,255,0.05)", padding: "12px 24px 20px" }}>
           {NAV_LINKS.map((link) => (
             <button
               key={link}
               onClick={() => handleNav(link)}
-              className={`border-none bg-none cursor-pointer text-sm font-medium text-left py-2.5 px-3 rounded-md transition-colors duration-200 ${
-                active === link ? "text-blue-400 bg-blue-500/10" : "text-slate-300 hover:text-white hover:bg-slate-800"
-              }`}
+              style={{
+                display: "block", width: "100%", background: active === link ? "rgba(96,165,250,0.1)" : "none",
+                border: "none", cursor: "pointer", textAlign: "left",
+                fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 500,
+                color: active === link ? "#60a5fa" : "#e2e8f0",
+                padding: "10px 12px", borderRadius: 8, marginBottom: 2,
+              }}
             >
               {link}
             </button>
@@ -172,85 +191,115 @@ function NavBar({ active, setActive }) {
 function HeroSection() {
   const typed = useTypewriter(
     ["Full-Stack Developer", "UI/UX Enthusiast", "Problem Solver", "Software Engineering Student"],
-    75,
-    2000
+    75, 2000
   );
 
   return (
-    <section id="about" className="min-h-screen flex items-center justify-center px-6 pt-16 pb-12 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-950/30 via-slate-900 to-slate-900 z-0" />
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-blue-600/8 blur-3xl z-0 pointer-events-none" />
+    <section id="about" style={{
+      minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "80px 32px 64px", position: "relative", overflow: "hidden",
+    }}>
+      {/* Subtle glow */}
+      <div style={{
+        position: "absolute", top: "30%", left: "50%", transform: "translate(-50%, -50%)",
+        width: 600, height: 600, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }} />
 
-      <div className="relative z-10 max-w-2xl mx-auto text-center w-full">
-        <div className="inline-flex items-center gap-2 border border-blue-500/25 bg-blue-500/8 rounded-full px-4 py-1.5 mb-10">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" style={{ animation: "pulse 2s infinite" }} />
-          <span className="font-mono text-[0.65rem] text-blue-300 tracking-widest uppercase">
-            Available for Attachments
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 640, width: "100%", textAlign: "center" }}>
+        {/* Badge */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          border: "1px solid rgba(96,165,250,0.25)", borderRadius: 999,
+          padding: "6px 16px", marginBottom: 40,
+          background: "rgba(96,165,250,0.06)",
+        }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#60a5fa", display: "inline-block", animation: "blink 2s infinite" }} />
+          <span style={{ fontFamily: "monospace", fontSize: 10, color: "#93c5fd", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+            Available for Internships
           </span>
         </div>
 
-        <h1 className="font-space text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight mb-3">
-          <span className="text-white">Mark Koome </span>
-          <span className="text-blue-400">Kaai</span>
+        {/* Name */}
+        <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 800, fontSize: "clamp(40px, 8vw, 68px)", lineHeight: 1.1, margin: "0 0 16px", letterSpacing: "-1px" }}>
+          <span style={{ color: "#f1f5f9" }}>Mark Koome </span>
+          <span style={{ color: "#3b82f6" }}>Kaai</span>
         </h1>
 
-        <div className="font-mono text-base sm:text-lg text-slate-400 mb-8 h-7">
-          {typed}
-          <Cursor />
+        {/* Typewriter */}
+        <div style={{ fontFamily: "monospace", fontSize: "clamp(14px, 2.5vw, 18px)", color: "#64748b", marginBottom: 28, minHeight: 28 }}>
+          <span style={{ color: "#60a5fa" }}>$ </span>{typed}<Cursor />
         </div>
 
-        <p className="text-slate-400 text-sm sm:text-base leading-relaxed max-w-lg mx-auto mb-10">
+        {/* Bio */}
+        <p style={{ fontFamily: "Inter, sans-serif", fontSize: 15, lineHeight: 1.8, color: "#64748b", maxWidth: 500, margin: "0 auto 40px" }}>
           Software Engineering student at Multimedia University of Kenya, building
           real-world solutions with a focus on usability, performance, and clean code.
         </p>
 
-        <div className="flex flex-wrap gap-3 justify-center mb-12">
+        {/* CTAs */}
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
           <button
             onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-7 py-3 bg-blue-600 hover:bg-blue-500 border-none rounded-lg font-medium text-sm text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
+            style={{
+              padding: "12px 28px", background: "#2563eb", border: "none", borderRadius: 8,
+              fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 13, color: "#fff",
+              cursor: "pointer", transition: "background 0.2s",
+            }}
+            onMouseEnter={e => e.target.style.background = "#3b82f6"}
+            onMouseLeave={e => e.target.style.background = "#2563eb"}
           >
             View Projects
           </button>
           <a
             href="mailto:markkaai2005@gmail.com"
-            className="px-7 py-3 bg-transparent border border-slate-600 hover:border-blue-400 rounded-lg font-medium text-sm text-slate-300 hover:text-white no-underline inline-block transition-all duration-200 hover:-translate-y-0.5"
+            style={{
+              padding: "12px 28px", background: "transparent",
+              border: "1px solid rgba(100,116,139,0.5)", borderRadius: 8,
+              fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 13, color: "#94a3b8",
+              textDecoration: "none", display: "inline-block", transition: "border-color 0.2s, color 0.2s",
+            }}
+            onMouseEnter={e => { e.target.style.borderColor = "#60a5fa"; e.target.style.color = "#fff"; }}
+            onMouseLeave={e => { e.target.style.borderColor = "rgba(100,116,139,0.5)"; e.target.style.color = "#94a3b8"; }}
           >
             Get In Touch
           </a>
         </div>
 
-        <div className="flex gap-6 justify-center">
+        {/* Social links */}
+        <div style={{ display: "flex", gap: 24, justifyContent: "center" }}>
           {[
-            { href: "https://github.com/markkaai", label: "GitHub", icon: "github" },
-            { href: "mailto:markkaai2005@gmail.com", label: "Email", icon: "mail" },
-            { href: "tel:+254798774223", label: "Phone", icon: "phone" },
+            { href: "https://github.com/markkaai", label: "GitHub", icon: (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+            )},
+            { href: "mailto:markkaai2005@gmail.com", label: "Email", icon: (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            )},
+            { href: "tel:+254798774223", label: "Phone", icon: (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.62 4.4 2 2 0 0 1 3.59 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.12-1.07a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            )},
           ].map((item) => (
             <a
               key={item.label}
               href={item.href}
               target={item.href.startsWith("http") ? "_blank" : undefined}
               rel="noreferrer"
-              className="group flex items-center gap-2 text-slate-500 hover:text-blue-400 no-underline transition-colors duration-200"
+              style={{ display: "flex", alignItems: "center", gap: 8, color: "#475569", textDecoration: "none", fontSize: 11, fontFamily: "monospace", letterSpacing: "0.12em", textTransform: "uppercase", transition: "color 0.2s" }}
+              onMouseEnter={e => e.currentTarget.style.color = "#60a5fa"}
+              onMouseLeave={e => e.currentTarget.style.color = "#475569"}
             >
-              <span className="w-8 h-8 rounded-full border border-slate-700 group-hover:border-blue-500/50 flex items-center justify-center transition-colors duration-200">
-                {item.icon === "github" && (
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
-                )}
-                {item.icon === "mail" && (
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                )}
-                {item.icon === "phone" && (
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.62 4.4 2 2 0 0 1 3.59 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.12-1.07a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                )}
+              <span style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid rgba(71,85,105,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {item.icon}
               </span>
-              <span className="text-[0.65rem] tracking-widest uppercase font-medium">{item.label}</span>
+              {item.label}
             </a>
           ))}
         </div>
@@ -259,13 +308,20 @@ function HeroSection() {
   );
 }
 
-function Divider() {
-  return <div className="max-w-5xl mx-auto px-6"><div className="border-t border-slate-800" /></div>;
+function SectionHeader({ eyebrow, title }) {
+  return (
+    <div style={{ textAlign: "center", marginBottom: 56 }}>
+      <p style={{ fontFamily: "monospace", fontSize: 10, color: "#3b82f6", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 10 }}>{eyebrow}</p>
+      <h2 style={{ fontFamily: "Inter, sans-serif", fontWeight: 700, fontSize: "clamp(26px, 5vw, 36px)", color: "#f1f5f9", margin: 0 }}>{title}</h2>
+    </div>
+  );
 }
 
-function SectionLabel({ children }) {
+function Divider() {
   return (
-    <p className="font-mono text-[0.65rem] text-blue-400 tracking-[0.2em] uppercase mb-3">{children}</p>
+    <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 32px" }}>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }} />
+    </div>
   );
 }
 
@@ -274,42 +330,40 @@ function ExperienceSection() {
   const exp = EXPERIENCES[active];
 
   return (
-    <section id="experience" className="py-24 px-6 max-w-5xl mx-auto">
-      <div className="text-center mb-14">
-        <SectionLabel>Experience</SectionLabel>
-        <h2 className="font-space text-3xl sm:text-4xl font-bold text-white">Where I've worked</h2>
-      </div>
+    <section id="experience" style={{ padding: "96px 32px", maxWidth: 1000, margin: "0 auto" }}>
+      <SectionHeader eyebrow="Experience" title="Where I've worked" />
 
-      <div className="flex flex-col md:flex-row gap-8 max-w-3xl mx-auto">
-        <div className="flex flex-row md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0 md:min-w-[180px]">
+      <div style={{ display: "flex", gap: 48, maxWidth: 760, margin: "0 auto", flexWrap: "wrap" }}>
+        {/* Tab list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 160 }}>
           {EXPERIENCES.map((e, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
-              className={`border-none px-4 py-3 cursor-pointer text-left rounded-lg flex-shrink-0 transition-all duration-200 ${
-                active === i
-                  ? "bg-blue-600/15 border-l-2 border-blue-400"
-                  : "hover:bg-slate-800"
-              }`}
+              style={{
+                background: active === i ? "rgba(37,99,235,0.12)" : "none",
+                border: "none",
+                borderLeft: active === i ? "2px solid #3b82f6" : "2px solid transparent",
+                cursor: "pointer", textAlign: "left",
+                padding: "12px 16px", borderRadius: "0 8px 8px 0",
+                transition: "all 0.2s",
+              }}
             >
-              <div className={`font-medium text-sm ${active === i ? "text-white" : "text-slate-400"}`}>
-                {e.company}
-              </div>
-              <div className={`font-mono text-[0.6rem] mt-0.5 ${active === i ? "text-blue-400" : "text-slate-600"}`}>
-                {e.period}
-              </div>
+              <div style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 13, color: active === i ? "#f1f5f9" : "#64748b" }}>{e.company}</div>
+              <div style={{ fontFamily: "monospace", fontSize: 10, color: active === i ? "#60a5fa" : "#475569", marginTop: 3 }}>{e.period}</div>
             </button>
           ))}
         </div>
 
-        <div className="flex-1">
-          <h3 className="font-space text-xl font-bold text-white mb-1">{exp.role}</h3>
-          <p className="font-mono text-xs text-blue-400 mb-6">{exp.company} · {exp.period}</p>
-          <ul className="space-y-4 list-none p-0 m-0">
+        {/* Content */}
+        <div style={{ flex: 1, minWidth: 260 }}>
+          <h3 style={{ fontFamily: "Inter, sans-serif", fontWeight: 700, fontSize: 20, color: "#f1f5f9", margin: "0 0 4px" }}>{exp.role}</h3>
+          <p style={{ fontFamily: "monospace", fontSize: 12, color: "#3b82f6", marginBottom: 24 }}>{exp.company} · {exp.period}</p>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 14 }}>
             {exp.points.map((pt, i) => (
-              <li key={i} className="flex gap-3 items-start">
-                <span className="text-blue-400 mt-1 flex-shrink-0 text-xs">▸</span>
-                <span className="text-slate-400 text-sm leading-relaxed">{pt}</span>
+              <li key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <span style={{ color: "#3b82f6", marginTop: 3, fontSize: 10, flexShrink: 0 }}>▸</span>
+                <span style={{ fontFamily: "Inter, sans-serif", fontSize: 14, lineHeight: 1.7, color: "#94a3b8" }}>{pt}</span>
               </li>
             ))}
           </ul>
@@ -321,39 +375,45 @@ function ExperienceSection() {
 
 function ProjectsSection() {
   return (
-    <section id="projects" className="py-24 px-6 max-w-5xl mx-auto">
-      <div className="text-center mb-14">
-        <SectionLabel>Projects</SectionLabel>
-        <h2 className="font-space text-3xl sm:text-4xl font-bold text-white">What I've built</h2>
-      </div>
+    <section id="projects" style={{ padding: "96px 32px", maxWidth: 1000, margin: "0 auto" }}>
+      <SectionHeader eyebrow="Projects" title="What I've built" />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20, maxWidth: 900, margin: "0 auto" }}>
         {PROJECTS.map((p, idx) => (
           <a
             key={idx}
             href={p.link}
             target="_blank"
             rel="noreferrer"
-            className="no-underline group"
+            style={{ textDecoration: "none" }}
           >
-            <div className="h-full bg-slate-800/60 border border-slate-700/60 rounded-xl p-6 transition-all duration-200 hover:border-blue-500/40 hover:bg-slate-800 hover:-translate-y-1">
-              <div className="flex justify-between items-start mb-5">
-                <span className="font-mono text-[0.6rem] text-blue-400 tracking-widest uppercase">Project</span>
-                <svg className="w-4 h-4 text-slate-600 group-hover:text-blue-400 transition-colors duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                  <polyline points="15 3 21 3 21 9" />
-                  <line x1="10" y1="14" x2="21" y2="3" />
+            <div
+              style={{
+                background: "rgba(30,41,59,0.6)", border: "1px solid rgba(51,65,85,0.8)",
+                borderRadius: 12, padding: "28px 24px", height: "100%",
+                transition: "border-color 0.2s, transform 0.2s", cursor: "pointer",
+                display: "flex", flexDirection: "column",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(51,65,85,0.8)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+                <span style={{ fontFamily: "monospace", fontSize: 9, color: "#3b82f6", letterSpacing: "0.15em", textTransform: "uppercase" }}>Project</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
                 </svg>
               </div>
-              <h3 className="font-space font-bold text-base text-white mb-2 group-hover:text-blue-300 transition-colors duration-200 leading-snug">
-                {p.title}
-              </h3>
-              <p className="text-slate-500 text-xs leading-relaxed mb-5">{p.desc}</p>
-              <div className="flex flex-wrap gap-1.5">
+              <h3 style={{ fontFamily: "Inter, sans-serif", fontWeight: 700, fontSize: 16, color: "#e2e8f0", margin: "0 0 10px", lineHeight: 1.4 }}>{p.title}</h3>
+              <p style={{ fontFamily: "Inter, sans-serif", fontSize: 13, lineHeight: 1.7, color: "#64748b", margin: "0 0 20px", flex: 1 }}>{p.desc}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {p.tags.map((tag) => (
-                  <span key={tag} className="font-mono text-[0.55rem] text-blue-300 bg-blue-500/10 border border-blue-500/15 rounded-full px-2.5 py-0.5">
-                    {tag}
-                  </span>
+                  <span key={tag} style={{
+                    fontFamily: "monospace", fontSize: 10, color: "#93c5fd",
+                    background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.15)",
+                    borderRadius: 999, padding: "3px 10px",
+                  }}>{tag}</span>
                 ))}
               </div>
             </div>
@@ -366,51 +426,38 @@ function ProjectsSection() {
 
 function SkillsSection() {
   return (
-    <section id="skills" className="py-24 px-6 max-w-5xl mx-auto">
-      <div className="text-center mb-14">
-        <SectionLabel>Skills</SectionLabel>
-        <h2 className="font-space text-3xl sm:text-4xl font-bold text-white">Tools & Technologies</h2>
-      </div>
+    <section id="skills" style={{ padding: "96px 32px", maxWidth: 1000, margin: "0 auto" }}>
+      <SectionHeader eyebrow="Skills" title="Tools & Technologies" />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 max-w-4xl mx-auto mb-10">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16, maxWidth: 900, margin: "0 auto 40px" }}>
         {Object.entries(SKILLS).map(([category, items]) => (
-          <div
-            key={category}
-            className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 hover:border-slate-600 transition-colors duration-200"
-          >
-            <p className="font-mono text-[0.55rem] text-blue-400 tracking-widest uppercase mb-3">{category}</p>
-            <div className="flex flex-col gap-1.5">
+          <div key={category} style={{
+            background: "rgba(30,41,59,0.5)", border: "1px solid rgba(51,65,85,0.7)",
+            borderRadius: 12, padding: "20px 18px",
+          }}>
+            <p style={{ fontFamily: "monospace", fontSize: 9, color: "#3b82f6", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 14 }}>{category}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {items.map((skill) => (
-                <span key={skill} className="text-xs text-slate-300">{skill}</span>
+                <span key={skill} style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "#cbd5e1" }}>{skill}</span>
               ))}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, maxWidth: 600, margin: "0 auto" }}>
         {[
-          {
-            label: "Education",
-            title: "B.Sc. Software Engineering",
-            institution: "Multimedia University of Kenya",
-            period: "Sep 2023 – Present",
-          },
-          {
-            label: "Certification",
-            title: "Python Developer",
-            institution: "Sololearn",
-            period: "Oct – Nov 2024",
-          },
+          { label: "Education", title: "B.Sc. Software Engineering", institution: "Multimedia University of Kenya", period: "Sep 2023 – Present" },
+          { label: "Certification", title: "Python Developer", institution: "Sololearn", period: "Oct – Nov 2024" },
         ].map((item) => (
-          <div
-            key={item.label}
-            className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition-colors duration-200"
-          >
-            <p className="font-mono text-[0.55rem] text-blue-400 tracking-widest uppercase mb-3">{item.label}</p>
-            <p className="font-space font-bold text-sm text-white mb-1">{item.title}</p>
-            <p className="text-xs text-blue-300">{item.institution}</p>
-            <p className="font-mono text-[0.65rem] text-slate-500 mt-1">{item.period}</p>
+          <div key={item.label} style={{
+            background: "rgba(30,41,59,0.5)", border: "1px solid rgba(51,65,85,0.7)",
+            borderRadius: 12, padding: "24px 20px",
+          }}>
+            <p style={{ fontFamily: "monospace", fontSize: 9, color: "#3b82f6", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 12 }}>{item.label}</p>
+            <p style={{ fontFamily: "Inter, sans-serif", fontWeight: 700, fontSize: 14, color: "#f1f5f9", marginBottom: 4 }}>{item.title}</p>
+            <p style={{ fontFamily: "Inter, sans-serif", fontSize: 12, color: "#60a5fa", marginBottom: 6 }}>{item.institution}</p>
+            <p style={{ fontFamily: "monospace", fontSize: 11, color: "#475569" }}>{item.period}</p>
           </div>
         ))}
       </div>
@@ -420,20 +467,24 @@ function SkillsSection() {
 
 function ContactSection() {
   return (
-    <section id="contact" className="py-24 px-6 max-w-5xl mx-auto text-center">
-      <SectionLabel>Contact</SectionLabel>
-      <h2 className="font-space text-3xl sm:text-4xl font-bold text-white mb-4">
-        Let's build something{" "}
-        <span className="text-blue-400">together</span>
+    <section id="contact" style={{ padding: "96px 32px 80px", maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
+      <SectionHeader eyebrow="Contact" title="" />
+      <h2 style={{ fontFamily: "Inter, sans-serif", fontWeight: 800, fontSize: "clamp(28px, 6vw, 48px)", color: "#f1f5f9", margin: "0 0 16px", lineHeight: 1.2 }}>
+        Let's build something <span style={{ color: "#3b82f6" }}>together</span>
       </h2>
-      <p className="text-slate-400 text-sm leading-relaxed max-w-md mx-auto mb-10">
-        Open to internship opportunities, freelance projects, and collaboration.
-        Drop a message and let's connect.
+      <p style={{ fontFamily: "Inter, sans-serif", fontSize: 15, lineHeight: 1.8, color: "#64748b", maxWidth: 440, margin: "0 auto 40px" }}>
+        Open to internship opportunities, freelance projects, and collaboration. Drop a message and let's connect.
       </p>
-      <div className="flex flex-wrap gap-3 justify-center mb-20">
+      <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 80 }}>
         <a
           href="mailto:markkaai2005@gmail.com"
-          className="px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium text-sm text-white no-underline inline-block transition-all duration-200 hover:-translate-y-0.5"
+          style={{
+            padding: "13px 32px", background: "#2563eb", borderRadius: 8,
+            fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 13, color: "#fff",
+            textDecoration: "none", display: "inline-block", transition: "background 0.2s",
+          }}
+          onMouseEnter={e => e.target.style.background = "#3b82f6"}
+          onMouseLeave={e => e.target.style.background = "#2563eb"}
         >
           Send an Email →
         </a>
@@ -441,12 +492,18 @@ function ContactSection() {
           href="https://github.com/markkaai"
           target="_blank"
           rel="noreferrer"
-          className="px-8 py-3 bg-transparent border border-slate-600 hover:border-blue-400 rounded-lg font-medium text-sm text-slate-300 hover:text-white no-underline inline-block transition-all duration-200 hover:-translate-y-0.5"
+          style={{
+            padding: "13px 32px", background: "transparent", border: "1px solid rgba(100,116,139,0.5)", borderRadius: 8,
+            fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 13, color: "#94a3b8",
+            textDecoration: "none", display: "inline-block", transition: "all 0.2s",
+          }}
+          onMouseEnter={e => { e.target.style.borderColor = "#60a5fa"; e.target.style.color = "#fff"; }}
+          onMouseLeave={e => { e.target.style.borderColor = "rgba(100,116,139,0.5)"; e.target.style.color = "#94a3b8"; }}
         >
           GitHub Profile
         </a>
       </div>
-      <div className="border-t border-slate-800 pt-8 font-mono text-[0.6rem] text-slate-600 tracking-wider">
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 28, fontFamily: "monospace", fontSize: 11, color: "#334155", letterSpacing: "0.08em" }}>
         © 2025 Mark Koome Kaai · Built with React & Tailwind
       </div>
     </section>
@@ -467,7 +524,7 @@ export default function App() {
           }
         });
       },
-      { threshold: 0.3 }
+      { threshold: 0.35 }
     );
     sections.forEach((s) => s && observer.observe(s));
     return () => observer.disconnect();
@@ -476,27 +533,17 @@ export default function App() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body {
-          background: #0F172A;
-          color: #F1F5F9;
-          font-family: 'Inter', sans-serif;
-          overflow-x: hidden;
-        }
-
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #0F172A; }
-        ::-webkit-scrollbar-thumb { background: #3B82F6; border-radius: 3px; }
-
-        .font-space { font-family: 'Space Grotesk', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
+        body { background: #0f172a; color: #f1f5f9; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 2px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @media (max-width: 640px) {
+          .desk-nav { display: none !important; }
+          .mob-menu-btn { display: flex !important; }
         }
       `}</style>
       <NavBar active={activeNav} setActive={setActiveNav} />
